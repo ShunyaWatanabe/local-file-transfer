@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./bin/www",
-    "devstart": "nodemon ./bin/www"
+    "devstart": "nodemon ./bin/www",
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +17,9 @@
     "fs-extra": "^7.0.1",
     "http": "0.0.0",
     "http-errors": "^1.7.1"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "supertest": "^3.3.0"
   }
 }

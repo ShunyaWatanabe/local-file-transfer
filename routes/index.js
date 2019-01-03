@@ -8,27 +8,23 @@ router.get('/', (req, res) => {
 })
 
 router.get('/download', (req, res) => {
-    fs.readdir('file_transfer/downloads/', function(err, items) {
-        console.log(items);
-
+    fs.readdir('file_transfer/downloads/', (err, items) => {
         files =[];
         for (var i=0; i<items.length; i++) {
-            console.log(items[i]);
             name = items[i];
-            dir = __dirname + 'file_transfer/downloads/' + name;
+            dir = 'file_transfer/downloads/' + name;
             files.push({path: dir, name: name});
         }
-        res.zip(files, "download.zip");
+        res.zip(files, "download.zip", (err) => {
+            if (err) throw err;
+        });
     });
 })
 
 router.get('/download/filenames', (req, res) =>{
-    fs.readdir('file_transfer/downloads/', function(err, items) {
-        console.log(items);
-        
+    fs.readdir('file_transfer/downloads/', (err, items) => {
         filenames = [];
         for (var i=0; i<items.length; i++) {
-            console.log(items[i]);
             name = items[i];
             filenames.push(name);
         }
@@ -36,8 +32,7 @@ router.get('/download/filenames', (req, res) =>{
     });
 })
 
-router.get('/download/:filename', function(req, res) {
-    console.log(req.params.filename);
+router.get('/download/:filename', (req, res) => {
     filename = req.params.filename;
     res.download('file_transfer/downloads/'+filename);
 });
@@ -47,13 +42,10 @@ router.route('/upload')
         var fstream;
         req.pipe(req.busboy);
         req.busboy.on('file', function (fieldname, file, filename) {
-            console.log('Uploading: ' + filename);
-
             //Path where file will be uploaded
             fstream = fs.createWriteStream('file_transfer/uploads/' + filename);
             file.pipe(fstream);
-            fstream.on('close', function () {    
-                console.log('Upload Finished of ' + filename);              
+            fstream.on('close', function () {        
                 res.redirect('uploaded.html');	//where to go next
             });
         });
