@@ -1,46 +1,28 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-//const path = require('path');
-const port = 3000;
-const busboy = require('connect-busboy'); //middleware for form/file upload
 const fs = require('fs-extra');       //File System - for file manipulation
-const zip = require('express-zip');
+const express = require('express');
+var router = express.Router();
 
 
-// use files in /views directory as static files
-app.use(express.static(__dirname + '/views'));
-
-// use files in /public directory as static files
-app.use(express.static(__dirname + '/public'));
-
-app.use(busboy());
-
-// use bodyParser to enable POST
-app.use(bodyParser.urlencoded({
-   extended: false
-}));
-
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
 	res.sendFile("index.html");
 })
 
-app.get('/download', (req, res) => {
-    fs.readdir(__dirname + '/file_transfer/downloads/', function(err, items) {
+router.get('/download', (req, res) => {
+    fs.readdir('file_transfer/downloads/', function(err, items) {
         console.log(items);
-        
-        files = [];
+
+        files =[];
         for (var i=0; i<items.length; i++) {
             console.log(items[i]);
             name = items[i];
-            dir = __dirname + '/file_transfer/downloads/' + name;
+            dir = __dirname + 'file_transfer/downloads/' + name;
             files.push({path: dir, name: name});
         }
         res.zip(files, "download.zip");
     });
 })
 
-app.get('/download/filenames', (req, res) =>{
+router.get('/download/filenames', (req, res) =>{
     fs.readdir('file_transfer/downloads/', function(err, items) {
         console.log(items);
         
@@ -54,13 +36,13 @@ app.get('/download/filenames', (req, res) =>{
     });
 })
 
-app.get('/download/:filename', function(req, res) {
+router.get('/download/:filename', function(req, res) {
     console.log(req.params.filename);
     filename = req.params.filename;
     res.download('file_transfer/downloads/'+filename);
 });
 
-app.route('/upload')
+router.route('/upload')
 	.post(function (req, res, next) {
         var fstream;
         req.pipe(req.busboy);
@@ -68,7 +50,7 @@ app.route('/upload')
             console.log('Uploading: ' + filename);
 
             //Path where file will be uploaded
-            fstream = fs.createWriteStream(__dirname + '/file_transfer/uploads/' + filename);
+            fstream = fs.createWriteStream('file_transfer/uploads/' + filename);
             file.pipe(fstream);
             fstream.on('close', function () {    
                 console.log('Upload Finished of ' + filename);              
@@ -77,6 +59,4 @@ app.route('/upload')
         });
     });
 
-
-
-app.listen(port, () => console.log(`Listening on port ${port}`))
+module.exports = router;
